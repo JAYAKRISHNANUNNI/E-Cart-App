@@ -1,13 +1,30 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from '../components/Header'
 import { Link } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 
 const Cart = () => {
+
+  const [cartTotal, setCartTotal] = useState(0)
+
+  const userCart = useSelector(state=>state.cartReducer)
+
+  useEffect(()=>{
+    if(userCart?.length>0){
+      setCartTotal(userCart?.map(item=>item.totalPrice).reduce((a1,a2)=>a1+a2))
+    }
+  },[userCart])
+
+
+
+
   return (
     <>
     <Header/>
     <div style={{paddingTop:'100px'}} className='px-5'>
-      <>
+      {
+        userCart?.length>0 ?
+        <>
       <h1 className='text-5xl font-bold text-blue-600'>Cart Summary</h1>
       <div className='grid grid-cols-3 gap-4 mt-5'>
         <div className='col-span-2 border rounded p-5 shadow'>
@@ -23,21 +40,25 @@ const Cart = () => {
             </tr>
           </thead>
             <tbody>
-              <tr>
-                <td>1</td>
-                <td>Product Name</td>
-                <td><img width={'70px'} height={'70px'} src="https://thumbs.dreamstime.com/z/full-grocery-cart-35581724.jpg" alt="" /></td>
+             {
+              userCart?.map((product,index)=>(
+                <tr>
+                <td>{index+1}</td>
+                <td>{product?.title}</td>
+                <td><img width={'70px'} height={'70px'} src={product?.thumbnail} alt="" /></td>
                 <td>
                   <div className='flex'>
                     <button className='font-bold'>-</button>
-                    <input style={{width:'40px'}}  type="text" className='border p-1 rounded mx-2' value={2} readOnly />
+                    <input style={{width:'40px'}}  type="text" className='border p-1 rounded mx-2' value={product?.quantity} readOnly />
                     <button className='font-bold'>+</button>
                     
                   </div>
                 </td>
-                <td>$ 100</td>
+                <td>$ {product?.totalPrice}</td>
                 <td><button className='text-red-600'><i className='fa-solid fa-trash'></i></button></td>
               </tr>
+              ))
+             }
             </tbody>
         </table>
         <div className='float-right mt-5'>
@@ -47,7 +68,7 @@ const Cart = () => {
         </div>
         <div className='col-span-1'>
           <div className='border rounded shadow p-5'>
-            <h2 className='text-2xl font-bold my-4'> Total Amount : <span className='text-red-600'>$ 9.99</span></h2>
+            <h2 className='text-2xl font-bold my-4'> Total Amount : <span className='text-red-600'>{cartTotal}</span></h2>
             <hr />
             <button className='bg-green-600 rounded p-2 text-white w-full mt-4'>Check Out</button>
           </div>
@@ -55,6 +76,12 @@ const Cart = () => {
         </div>
       </div>
       </>
+      :
+      <div className='flex justify-center items-center h-screen'>
+        <img src="https://krosfitsports.com/public/empty-cart.gif" alt="" />
+        <h1 className='text-xl text-red-600'>Your wishlist is empty!!</h1>
+      </div>
+      }
     </div>
     </>
   )
